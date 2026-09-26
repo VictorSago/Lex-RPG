@@ -1,7 +1,13 @@
 
-class Game:
-    def __init__(self, hero, enemies, quest):
-        pass
+from rpg.characters import Hero, Enemy
+from rpg.quests import Quest
 
-    def run(self):
+
+class Game:
+    def __init__(self, hero: Hero, enemies: list[Enemy], quest: Quest) -> None:
+        self.hero = hero
+        self.enemies = enemies
+        self.quest = quest
+
+    def run(self) -> None:
         pass

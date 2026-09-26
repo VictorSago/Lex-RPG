@@ -103,8 +103,8 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 
 | Step | Phase | Description |
 | --- | --- | --- |
-| 1 | Skeleton, revised (**now**) | redo the class signatures with int params and type-hints; confirm it imports cleanly with no runtime errors. Commit. |
-| 2 | `characters.py` bodies | Character, Hero, Enemy, including `super().__init__()`. Everything else depends on this. Commit. |
+| 1 | Skeleton, revised | redo the class signatures with int params and type-hints; confirm it imports cleanly with no runtime errors. Commit. |
+| 2 | `characters.py` bodies (**next**) | Character, Hero, Enemy, including `super().__init__()`. Everything else depends on this. Commit. |
 | 3 | `items.py` bodies | Item, Weapon, Potion, using (`use(self, user)`). Commit. |
 | 4 | `quest.py` body | simple flag-and-description class. Commit. |
 | 5 | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
