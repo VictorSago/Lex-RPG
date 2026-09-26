@@ -12,6 +12,7 @@ start to a "quest complete" end state.
 
 ## Rough repo structure (surface-level, will shift)
 
+```text
 Lex-RPG/
 ├── README.md           # minimal placeholder for now
 ├── PLANNING.md         # today's outline lives here, evolves
@@ -23,6 +24,7 @@ Lex-RPG/
     ├── items.py        # Item, Weapon, Potion, etc.
     ├── quest.py        # Quest
     └── game.py         # Game/World - ties everything together
+```
 
 ## Characters
 
@@ -96,3 +98,17 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 - should at least one enemy override behavior (not just stats)?
 - does an unarmed `Hero` have some baseline `attack_power`, or does `attack()` do nothing meaningful until a weapon is equipped?
 - file/module split (characters, items, quest, game runner, etc.)
+
+## Approximate Roadmap
+
+| Step | Phase | Description |
+| --- | --- | --- |
+| 1 | Skeleton, revised (**now**) | redo the class signatures with int params and type-hints; confirm it imports cleanly with no runtime errors. Commit. |
+| 2 | `characters.py` bodies | Character, Hero, Enemy, including `super().__init__()`. Everything else depends on this. Commit. |
+| 3 | `items.py` bodies | Item, Weapon, Potion, using (`use(self, user)`). Commit. |
+| 4 | `quest.py` body | simple flag-and-description class. Commit. |
+| 5 | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
+| 6 | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. |
+| 7 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
+| 8 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
+| 9 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |
