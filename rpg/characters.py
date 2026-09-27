@@ -14,21 +14,26 @@ class Character:
         self.attack_power = attack_power
     
     def take_damage(self, amount: int) -> None:
-        pass
+        self.current_health = max(0, self.current_health - amount)
     
     def attack(self, target: Character) -> None:
-        pass
+        target.take_damage(self.attack_power)
     
     def is_alive(self) -> bool:
-        return True
+        return self.current_health > 0
 
 
 class Hero(Character):
     def __init__(self, name: str, max_health: int, attack_power: int) -> None:
         super().__init__(name, max_health, attack_power)
+        self.inventory: list[Item] = []
     
     def use_item(self, item: Item) -> None:
-        pass
+        if item not in self.inventory:
+            raise ValueError(f"{self.name} does not {item.name} in the inventory")
+        item.use(self)
+        if item.consumable:
+            self.inventory.remove(item)
 
 
 class Enemy(Character):
