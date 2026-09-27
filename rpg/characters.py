@@ -16,6 +16,9 @@ class Character:
     def take_damage(self, amount: int) -> None:
         self.current_health = max(0, self.current_health - amount)
     
+    def heal(self, amount: int) -> None:
+        self.current_health = min(self.max_health, self.current_health + amount)
+    
     def attack(self, target: Character) -> None:
         target.take_damage(self.attack_power)
     

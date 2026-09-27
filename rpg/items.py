@@ -12,7 +12,7 @@ class Item:
         self.consumable = consumable
     
     def use(self, user: Character) -> None:
-        pass
+        raise NotImplementedError
 
 
 class Weapon(Item):
@@ -21,7 +21,7 @@ class Weapon(Item):
         self.damage_bonus = damage_bonus
     
     def use(self, user: Character) -> None:
-        pass
+        user.attack_power += self.damage_bonus
 
 
 class Potion(Item):
@@ -30,4 +30,4 @@ class Potion(Item):
         self.heal_amount = heal_amount
     
     def use(self, user: Character) -> None:
-        pass
+        user.heal(self.heal_amount)
