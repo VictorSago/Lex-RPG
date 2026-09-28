@@ -22,7 +22,7 @@ Lex-RPG/
     ├── __init__.py
     ├── characters.py   # Character, Hero, Enemy (+ subclasses)
     ├── items.py        # Item, Weapon, Potion, etc.
-    ├── quest.py        # Quest
+    ├── quests.pys       # Quest
     └── game.py         # Game/World - ties everything together
 ```
 
@@ -37,13 +37,17 @@ shared idea: something with a name and health that can take damage and be checke
   + `take_damage(amount)` reduces health (not below 0)
   + `is_alive()` checks health > 0
   + `attack(target)` deals damage to target based on `self.attack_power`
+  + `heal(amount)` (limited at `max_health`)
+- add `__str__` (a status line like "Link (HP 12/20)")
 
 ### Hero (a kind of Character)
 
 - the player-controlled character
 - carries items, can use them
 - adds: `inventory` (a list of `Item`s)
-- behavior: `use_item(item)` - applies the item's effect to itself, then likely removes it from inventory (consumables) or keeps it (a weapon we re-use)
+- behavior:
+  + `use_item(item)` - applies the item's effect to itself, then removes the item from inventory only if `item.consumable`, or keeps it (a weapon we re-use)
+  + `pick_up(item)`
 
 ### Enemy (a kind of Character)
 
@@ -58,7 +62,7 @@ shared idea: something with a name and health that can take damage and be checke
 
 - something the hero can carry and use
 - different item types should DO different things when used
-- attributes: `name`
+- attributes: `name`, the `consumable` flag (Weapon: False, Potion: True)
 - behavior: `use(target)` - base version does nothing or raises `NotImplementedError`
   + `Weapon.use(user)` -> equips itself, boosting `user.attack_power`
   + `Potion.use(user)` -> heals `user`
@@ -70,17 +74,22 @@ shared idea: something with a name and health that can take damage and be checke
 
 - represents a goal (e.g. "defeat the enemy")
 - needs a way to check whether it's been completed
-- attributes: `description`, `is_complete` (bool)
+- attributes: `description`, `_is_complete` (bool)
 - behavior: something marks it complete - either the `Game` checks a condition (e.g. "target enemy is dead") and calls `quest.complete()`, or the quest itself holds a reference to what it's tracking and has `check_complete()`. Leaning toward the *Game* driving this rather than the `Quest` reaching out to check enemy state itself - keeps `Quest` simple and dumb (just a flag + description).
+- add `is_complete()`
 
 ## Tying it together
 
 ### Game / World
 
-- owns the hero, the current enemy/enemies, the quest
-- this is where the actual "run" happens: hero acts, state changes, consequences ripple (enemy takes damage, hero takes damage, quest gets checked, etc.)
-- attributes: `hero`, `enemies` (list, even if we start with one), `quest`
-- behavior: `run()` - the orchestration: hero attacks enemy, enemy attacks back if still alive, repeat until someone dies; on enemy death, hand over reward, check/complete quest
+- owns the hero, the enemies and the quest
+- attributes: `hero`, `enemies` (list, even if we start with one), `quest`, `interactive` (bool: True = the player chooses the hero's actions, False = automatic demo)
+- `run()` only does the outer flow: for each enemy -> fight it -> if the hero survived, collect the reward and check the quest. It stops when the hero falls or the enemies run out.
+- `run()` delegates to small private helpers (leading underscore = internal): `_fight(enemy)`, `_turn_order(enemy)`, `_take_turn(combatant, enemy)`, `_hero_turn(enemy)`, `_enemy_turn(enemy)`, `_choose_hero_action(enemy)`, `_collect_reward(enemy)`, `_check_quest()`
+- all input and output goes through exactly two methods: `_say(text)` for output and `_ask(prompt)` for input. No other method calls `print()` or `input()`. Only `Game` does I/O; `Character`, `Item` and `Quest` never print.
+- the hero's action is decided in one place, `_choose_hero_action`. Interactive: a numbered menu (0 = attack, 1..n = use an inventory item). Demo: an automatic rule (use a consumable when health is below half, otherwise attack). Both return the item to use, or `None` to attack.
+- rewards: when an enemy is defeated, `Game` hands its reward to the hero with `Hero.pick_up(item)` instead of touching `hero.inventory` directly
+- quest completion is hardcoded for the MVP in `_check_quest()` ("all enemies are defeated"). It is the only place that knows the rule, so it can be replaced later (e.g. by a condition stored on each `Quest`) without touching the rest of `Game`.
 
 ## What "done" looks like for the minimum version
 
@@ -92,12 +101,28 @@ Everything beyond this (more enemies, more items, more quests) is an extension, 
 
 Simplest version - each "round," hero deals damage equal to `attack_power` (optionally boosted by an equipped weapon), then enemy retaliates if alive. No dice rolls, no randomness needed yet - keep it deterministic for now, add randomness later only if it feels worth it.
 
+- who acts first is decided by `_turn_order(enemy)`, which returns the combatants in the order they act. For now it always returns `[hero, enemy]`. The fight loop walks that list and stops as soon as anyone is dead, so a dead combatant never acts. Later only `_turn_order` needs to change (speed/initiative, ambush, randomness).
+- a fight ends when the hero or the enemy is dead
+
+## Running the program
+
+- `python main.py` -> interactive play (the default)
+- `python main.py -d` (or `--demo`) -> automatic demo that runs to completion without input
+- `-h` / `--help` comes for free with `argparse`
+- argument parsing lives in `main.py` only. `Game` receives a plain `interactive` bool and knows nothing about the command line.
+
+## Parked for later (marked in the code with TODO / FIXME)
+
+- the hero dying to an enemy's first strike before it ever acts (matters once enemies can act first): balance the numbers, or add a rule that prevents it
+- round cap per fight (two sides with 0 attack_power loop forever); later maybe detect "no change in state for N rounds"
+- sub-quests, or several quests with different goals (the completion condition would live on the quest)
+- `equipped` flag on weapons, multi-use items, a guard against stacking the same weapon's bonus, and the demo hero never equipping weapons
+- interactive/demo hero policies could become pluggable functions if they grow apart
+
 ## Not decided yet, to think about in the next pass
 
 - how many enemy types, how many item types (keep it small)
 - should at least one enemy override behavior (not just stats)?
-- does an unarmed `Hero` have some baseline `attack_power`, or does `attack()` do nothing meaningful until a weapon is equipped?
-- file/module split (characters, items, quest, game runner, etc.)
 
 ## Approximate Roadmap
 
@@ -106,9 +131,10 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | 1 | Skeleton, revised (**done**) | redo the class signatures type-hints; confirm it imports cleanly with no runtime errors. Commit. |
 | 2 | `characters.py` bodies (**done**) | Character, Hero, Enemy, including `super().__init__()`. Everything else depends on this. Commit. |
 | 3 | `items.py` bodies (**done**) | Item, Weapon, Potion, using (`use(self, user)`). Commit. |
-| 4 | `quests.py` body (**now**) | simple flag-and-description class. Commit. |
-| 5 | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
-| 6 | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. |
-| 7 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
-| 8 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
-| 9 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |
+| 4 | `quests.py` body (**done**) | simple flag-and-description class for now. Commit. |
+| 5 | `game.py` body (**now**) | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
+| 6 | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit. Merge. |
+| 7 | tests | Start the first wave of tests |
+| 8 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
+| 9 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
+| 10 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |
