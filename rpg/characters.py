@@ -24,12 +24,18 @@ class Character:
     
     def is_alive(self) -> bool:
         return self.current_health > 0
+    
+    def __str__(self) -> str:
+        return f"{self.name} (HP {self.current_health}/{self.max_health})"
 
 
 class Hero(Character):
     def __init__(self, name: str, max_health: int, attack_power: int) -> None:
         super().__init__(name, max_health, attack_power)
         self.inventory: list[Item] = []
+    
+    def pick_up(self, item: Item) -> None:
+        self.inventory.append(item)
     
     def use_item(self, item: Item) -> None:
         if item not in self.inventory:
