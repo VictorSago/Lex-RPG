@@ -105,8 +105,8 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | --- | --- | --- |
 | 1 | Skeleton, revised (**done**) | redo the class signatures type-hints; confirm it imports cleanly with no runtime errors. Commit. |
 | 2 | `characters.py` bodies (**done**) | Character, Hero, Enemy, including `super().__init__()`. Everything else depends on this. Commit. |
-| 3 | `items.py` bodies (**now**) | Item, Weapon, Potion, using (`use(self, user)`). Commit. |
-| 4 | `quest.py` body | simple flag-and-description class. Commit. |
+| 3 | `items.py` bodies (**done**) | Item, Weapon, Potion, using (`use(self, user)`). Commit. |
+| 4 | `quests.py` body (**now**) | simple flag-and-description class. Commit. |
 | 5 | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
 | 6 | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. |
 | 7 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
