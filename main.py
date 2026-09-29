@@ -19,7 +19,7 @@ def build_game(interactive: bool) -> Game:
     hero.pick_up(Potion("Health Potion", heal_amount=10))
     goblin = Enemy("Goblin", max_health=15, attack_power=4, 
                    reward=Weapon("Rusty Sword", damage_bonus=3))
-    quest = Quest("Defeat the goblin threatening the village")
+    quest = Quest("Goblin Threat", "Defeat the goblin threatening the village")
     
     return Game(hero, [goblin], quest, interactive=interactive)
 
@@ -31,7 +31,7 @@ def main() -> None:
     game.run()
     print(f"Finishing game({game.hero},", 
           f"{[str(e) for e in game.enemies]},", 
-          f"{game.quest.description[:20]}..., Completed: {game.quest.is_complete()})")
+          f"{game.quest.name}, Completed: {game.quest.is_complete()})")
 
 
 if __name__ == "__main__":
