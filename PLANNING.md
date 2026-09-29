@@ -134,9 +134,10 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | `characters.py` bodies | Character, Hero, Enemy, including `super().__init__()`. Everything else depends on this. Commit. |
 | **done** | `items.py` bodies | Item, Weapon, Potion, using (`use(self, user)`). Commit. |
 | **done** | `quests.py` body | simple flag-and-description class for now. Commit. |
-| **now** | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
-| 6 | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit. Merge. |
-| 7 | tests | Start the first wave of tests |
-| 8 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
-| 9 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
-| 10 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |
+| **done** | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
+| **now** | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit. Merge. |
+| 7 | tests | Start the first wave of tests. Commit. Merge. |
+| 8 | locations | Character movement. Commit. Merge. |
+| 9 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
+| 10 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
+| 11 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |
