@@ -1,5 +1,7 @@
 
 class Quest:
+    # TODO: completion is a stored flag set by Game for now. Later: derive it
+    # (subclasses overriding is_complete(), sub-quests as a list of Quests).
     def __init__(self, description: str) -> None:
         self.description = description
         self._is_complete = False
@@ -7,5 +9,5 @@ class Quest:
     def complete(self) -> None:
         self._is_complete = True
     
-    def is_comlete(self) -> bool:
+    def is_complete(self) -> bool:
         return self._is_complete

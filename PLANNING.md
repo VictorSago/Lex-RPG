@@ -118,6 +118,8 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 - sub-quests, or several quests with different goals (the completion condition would live on the quest)
 - `equipped` flag on weapons, multi-use items, a guard against stacking the same weapon's bonus, and the demo hero never equipping weapons
 - interactive/demo hero policies could become pluggable functions if they grow apart
+- `Quest` growth: sub-quests, `is_complete()` logic by subclasses
+- unit tests right after the core-loop milestone (using `unittest`)
 
 ## Not decided yet, to think about in the next pass
 

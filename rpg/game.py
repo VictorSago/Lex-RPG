@@ -11,6 +11,21 @@ class Game:
         self.enemies = enemies
         self.quest = quest
         self.interactive = interactive
+
+    def run(self) -> None:
+        self._say(f"Quest: {self.quest.description}")
+        for enemy in self.enemies:
+            self._fight(enemy)
+            if not self.hero.is_alive():
+                break
+            self._say(f"{enemy.name} is defeated!")
+            self._collect_reward(enemy)
+            self._check_quest()
+        
+        if self.hero.is_alive():
+            self._say(f"{self.hero.name} survives the adventure.")
+        else:
+            self._say(f"{self.hero.name} has fallen! Game over!")
     
     def _say(self, text: str) -> None:
         print(text)
@@ -24,7 +39,8 @@ class Game:
         # TODO: round cap / stalemate detection (both sides at 0 attack_power loops forever)
         while self.hero.is_alive() and enemy.is_alive():
             for combatant in self._turn_order(enemy):
-                self._take_turn(combatant, enemy)
+                opponent = enemy if combatant is self.hero else self.hero
+                self._take_turn(combatant, opponent)
                 self._say(f"  {self.hero} | {enemy}")
                 if not (self.hero.is_alive() and enemy.is_alive()):
                     break
@@ -34,14 +50,19 @@ class Game:
             # TODO: Also decide how to avoid the hero dying to a first strike before ever acting.
             return [self.hero, enemy]
         
-    def _take_turn(self, combatant: Character, enemy: Enemy) -> None:
-        if combatant is self.hero:
-            self._hero_turn(enemy)
-        else:
-            self._enemy_turn(enemy)
+    def _take_turn(self, combatant: Character, opponent: Character) -> None:
+        if isinstance(combatant, Hero):
+            item = self._choose_hero_action()
+            if item is not None:
+                self._say(f"{combatant.name} uses {item.name}.")
+                combatant.use_item(item)
+                return
+        self._say(f"{combatant.name} attacks {opponent.name}!")
+        combatant.attack(opponent)
     
+    # Obsolete
     def _hero_turn(self, enemy: Enemy) -> None:
-        item = self._choose_hero_action(enemy)
+        item = self._choose_hero_action()
         if item is None:
             self._say(f"{self.hero.name} attacks {enemy.name}!")
             self.hero.attack(enemy)
@@ -49,11 +70,12 @@ class Game:
             self._say(f"{self.hero.name} uses {item.name}.")
             self.hero.use_item(item)
     
+    # Obsolete
     def _enemy_turn(self, enemy: Enemy) -> None:
         self._say(f"{enemy.name} attacks {self.hero.name}!")
         enemy.attack(self.hero)
     
-    def _choose_hero_action(self, enemy: Enemy) -> Item | None:
+    def _choose_hero_action(self) -> Item | None:
         """Return the item the hero uses this turn, or None to attack."""
         if self.interactive:
             return self._prompt_action()
@@ -63,7 +85,7 @@ class Game:
         inventory = self.hero.inventory
         self._say("Your move:")
         self._say("  0) Attack")
-        for number, item in enumerate(inventory):
+        for number, item in enumerate(inventory, start=1):
             self._say(f"  {number}) Use {item.name}")
         while True:
             answer = self._ask("> ")
@@ -88,21 +110,6 @@ class Game:
     def _check_quest(self) -> None:
         # Hardcoded rule for the MVP: done when every enemy is defeated.
         # TODO: replace with a per-quest condition (e.g. a callable stored on Quest).
-        if not self.quest.is_comlete() and all(not e.is_alive() for e in self.enemies):
+        if not self.quest.is_complete() and all(not e.is_alive() for e in self.enemies):
             self._say(f"Quest complete: {self.quest.description}")
             self.quest.complete()
-    
-    def run(self) -> None:
-        self._say(f"Quest: {self.quest.description}")
-        for enemy in self.enemies:
-            self._fight(enemy)
-            if not self.hero.is_alive():
-                break
-            self._say(f"{enemy.name} is defeated!")
-            self._collect_reward(enemy)
-            self._check_quest()
-        
-        if self.hero.is_alive():
-            self._say(f"{self.hero.name} survives the adventure.")
-        else:
-            self._say(f"{self.hero.name} has fallen! Game over!")
