@@ -13,6 +13,10 @@ class Item:
     
     def use(self, user: Character) -> None:
         raise NotImplementedError
+    
+    def healing_value(self) -> int:
+        """How much health using this item would restore. 0 if it doesn't heal."""
+        return 0
 
 
 class Weapon(Item):
@@ -31,3 +35,6 @@ class Potion(Item):
     
     def use(self, user: Character) -> None:
         user.heal(self.heal_amount)
+    
+    def healing_value(self) -> int:
+        return self.heal_amount

@@ -14,16 +14,22 @@ start to a "quest complete" end state.
 
 ```text
 Lex-RPG/
-├── README.md           # minimal placeholder for now
-├── PLANNING.md         # today's outline lives here, evolves
+├── README.md             # minimal placeholder for now
+├── PLANNING.md           # design notes, evolves
 ├── .gitignore
-├── main.py             # entry point - starts/runs the game
-└── rpg/                # the actual package
+├── main.py               # entry point - starts/runs the game
+├── rpg/                  # the actual package
+│   ├── __init__.py
+│   ├── characters.py     # Character, Hero, Enemy (+ subclasses)
+│   ├── items.py          # Item, Weapon, Potion, etc.
+│   ├── quests.py         # Quest
+│   └── game.py           # Game/World - ties everything together
+└── tests/                # unit tests, one file per rpg/ module
     ├── __init__.py
-    ├── characters.py   # Character, Hero, Enemy (+ subclasses)
-    ├── items.py        # Item, Weapon, Potion, etc.
-    ├── quests.pys       # Quest
-    └── game.py         # Game/World - ties everything together
+    ├── test_characters.py
+    ├── test_items.py     # next up
+    ├── test_quests.py    # next up
+    └── test_game.py      # later - Game does I/O, not a pure unit test
 ```
 
 ## Characters
@@ -67,6 +73,12 @@ shared idea: something with a name and health that can take damage and be checke
   + `Weapon.use(user)` -> equips itself, boosting `user.attack_power`
   + `Potion.use(user)` -> heals `user`
 - polymorphism: `Hero.use_item(item)` just calls `item.use(...)` without caring which kind it is
+
+#### Item design principle (decided)
+
+When code outside Item needs to ask "what kind of thing is this item" (e.g. "does it heal"), `Item` gains a method with a harmless default (e.g. `healing_value() -> int: return 0`), overridden only by the subclasses it applies to. Never a stored attribute or boolean flag on the base class for data most subclasses don't have.
+
+Considered and rejected for now: a set of boolean flags on `Item` (consumable, healing, magical, equippable, ...) to let one item have several independent qualities (e.g. a magical weapon, a healing gauntlet). More flexible, but flags can contradict each other (equippable vs. consumable) and tracking that consistently would likely need a helper class or enum - real overengineering for a roster of two item types. Revisit only if items genuinely need to combine several independent qualities at once.
 
 ## Quests
 
@@ -119,7 +131,7 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 - `equipped` flag on weapons, multi-use items, a guard against stacking the same weapon's bonus, and the demo hero never equipping weapons
 - interactive/demo hero policies could become pluggable functions if they grow apart
 - `Quest` growth: sub-quests, `is_complete()` logic by subclasses
-- unit tests right after the core-loop milestone (using `unittest`)
+- Potion subtypes (HealthPotion, ManaPotion, etc.) - Potion currently *is* a health potion. Don't split it into a hierarchy until a second potion type is actually needed; deciding the shape in advance would be guessing.
 
 ## Not decided yet, to think about in the next pass
 

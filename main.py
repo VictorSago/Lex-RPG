@@ -29,7 +29,9 @@ def main() -> None:
     args = parse_args()
     game = build_game(interactive=not args.demo)
     game.run()
-    print(f"Finishing game({game.hero}, {[str(e) for e in game.enemies]}, {game.quest})")
+    print(f"Finishing game({game.hero},", 
+          f"{[str(e) for e in game.enemies]},", 
+          f"{game.quest.description[:20]}..., Completed: {game.quest.is_complete()})")
 
 
 if __name__ == "__main__":

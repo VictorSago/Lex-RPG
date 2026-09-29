@@ -83,7 +83,7 @@ class Game:
         # TODO: the demo hero only heals; equipping weapons waits for an `equipped` flag
         if self.hero.current_health < self.hero.max_health // 2:
             for item in self.hero.inventory:
-                if item.consumable:
+                if item.healing_value() > 0:
                     return item
         return None
         
