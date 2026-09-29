@@ -60,21 +60,6 @@ class Game:
         self._say(f"{combatant.name} attacks {opponent.name}!")
         combatant.attack(opponent)
     
-    # Obsolete
-    def _hero_turn(self, enemy: Enemy) -> None:
-        item = self._choose_hero_action()
-        if item is None:
-            self._say(f"{self.hero.name} attacks {enemy.name}!")
-            self.hero.attack(enemy)
-        else:
-            self._say(f"{self.hero.name} uses {item.name}.")
-            self.hero.use_item(item)
-    
-    # Obsolete
-    def _enemy_turn(self, enemy: Enemy) -> None:
-        self._say(f"{enemy.name} attacks {self.hero.name}!")
-        enemy.attack(self.hero)
-    
     def _choose_hero_action(self) -> Item | None:
         """Return the item the hero uses this turn, or None to attack."""
         if self.interactive:
