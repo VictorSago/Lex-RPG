@@ -22,8 +22,11 @@ class Character:
     def heal(self, amount: int) -> None:
         self.current_health = min(self.max_health, self.current_health + amount)
     
+    def effective_attack_power(self) -> int:
+        return self.attack_power
+    
     def attack(self, target: Character) -> None:
-        target.take_damage(self.attack_power)
+        target.take_damage(self.effective_attack_power())
     
     def is_alive(self) -> bool:
         return self.current_health > 0
@@ -44,6 +47,10 @@ class Hero(Character):
         self.location: Location | None = None  # set once the world is built
         self.equipped_weapon: Weapon | None = None
     
+    def effective_attack_power(self) -> int:
+        bonus = self.equipped_weapon.damage_bonus if self.equipped_weapon else 0
+        return self.attack_power + bonus
+    
     def pick_up(self, item: Item) -> None:
         self.inventory.append(item)
     
@@ -57,10 +64,7 @@ class Hero(Character):
     def equip(self, item: Item) -> None:
         if not isinstance(item, Weapon):
             return
-        if self.equipped_weapon is not None:
-            self.attack_power -= self.equipped_weapon.damage_bonus
         self.equipped_weapon = item
-        self.attack_power += item.damage_bonus
     
     def move_to(self, location: Location) -> None:
         self.location = location

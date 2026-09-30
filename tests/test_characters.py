@@ -42,6 +42,10 @@ class TestCharacter(unittest.TestCase):
         target = Character("Target", max_health=20, attack_power=1)
         attacker.attack(target)
         self.assertEqual(target.current_health, 13)
+    
+    def test_effective_attack_power_defaults_to_attack_power(self):
+        c = Character("Test", max_health=10, attack_power=6)
+        self.assertEqual(c.effective_attack_power(), 6)
 
 
 class TestHero(unittest.TestCase):
@@ -75,19 +79,24 @@ class TestHero(unittest.TestCase):
         hero.use_item(sword)
         self.assertIn(sword, hero.inventory)
     
-    def test_equip_sets_weapon_and_increases_attack_power(self):
-            hero = Hero("Test", max_health=20, attack_power=5)
-            sword = Weapon("Sword", damage_bonus=3)
-            hero.equip(sword)
-            self.assertIs(hero.equipped_weapon, sword)
-            self.assertEqual(hero.attack_power, 8)
+    def test_equip_sets_equipped_weapon(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        sword = Weapon("Sword", damage_bonus=3)
+        hero.equip(sword)
+        self.assertIs(hero.equipped_weapon, sword)
+
+    def test_effective_attack_power_includes_weapon_bonus(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        hero.equip(Weapon("Sword", damage_bonus=3))
+        self.assertEqual(hero.effective_attack_power(), 8)
+        self.assertEqual(hero.attack_power, 5)      # base stays untouched
         
     def test_equipping_same_weapon_again_does_not_stack(self):
         hero = Hero("Test", max_health=20, attack_power=5)
         sword = Weapon("Sword", damage_bonus=3)
         hero.equip(sword)
         hero.equip(sword)
-        self.assertEqual(hero.attack_power, 8)
+        self.assertEqual(hero.effective_attack_power(), 8)
             
     def test_equipping_a_different_weapon_replaces_the_bonus(self):
         hero = Hero("Test", max_health=20, attack_power=5)
@@ -95,8 +104,15 @@ class TestHero(unittest.TestCase):
         steel = Weapon("Steel Sword", damage_bonus=10)
         hero.equip(rusty)
         hero.equip(steel)
-        self.assertEqual(hero.attack_power, 15)
+        self.assertEqual(hero.effective_attack_power(), 15)
         self.assertIs(hero.equipped_weapon, steel)
+    
+    def test_attack_uses_effective_attack_power(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        hero.equip(Weapon("Sword", damage_bonus=3))
+        target = Character("Target", max_health=20, attack_power=1)
+        hero.attack(target)
+        self.assertEqual(target.current_health, 12)     # 20 - (5 base + 3 bonus)
     
     def test_move_to_sets_location(self):
         hero = Hero("Link", max_health=20, attack_power=5)

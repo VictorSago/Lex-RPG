@@ -18,14 +18,14 @@ class TestWeapon(unittest.TestCase):
         hero = Hero("Test", max_health=20, attack_power=5)
         sword = Weapon("Sword", damage_bonus=3)
         sword.use(hero)
-        self.assertEqual(hero.attack_power, 8)
+        self.assertEqual(hero.effective_attack_power(), 8)
     
     def test_use_on_a_plain_character_does_nothing(self):
         # Confirms the harmless default: a Character that can't equip is unaffected.
         character = Character("Test", max_health=20, attack_power=5)
         sword = Weapon("Sword", damage_bonus=3)
         sword.use(character)
-        self.assertEqual(character.attack_power, 5)
+        self.assertEqual(character.effective_attack_power(), 5)
 
 
 class TestPotion(unittest.TestCase):

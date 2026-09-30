@@ -95,11 +95,11 @@ Considered and rejected for now: a set of boolean flags on `Item` (consumable, h
 ### Game / World
 
 - owns the hero, the enemies and the quest
-- attributes: `hero`, `enemies` (list, even if we start with one), `quest`, `interactive` (bool: True = the player chooses the hero's actions, False = automatic demo)
+- attributes: `hero`, `locations`, `quest`, `interactive` (bool: True = the player chooses the hero's actions, False = automatic demo)
 - `run()` only does the outer flow: for each enemy -> fight it -> if the hero survived, collect the reward and check the quest. It stops when the hero falls or the enemies run out.
-- `run()` delegates to small private helpers (leading underscore = internal): `_fight(enemy)`, `_turn_order(enemy)`, `_take_turn(combatant, enemy)`, `_hero_turn(enemy)`, `_enemy_turn(enemy)`, `_choose_hero_action(enemy)`, `_collect_reward(enemy)`, `_check_quest()`
+- `run()` delegates to small private helpers (leading underscore = internal): `_enter_location(location)`, `_fight(enemy)`, `_turn_order(enemy)`, `_take_turn(combatant, opponent)`, `_choose_hero_action()`, `_collect_reward(enemy)`, `_check_quest()`
 - all input and output goes through exactly two methods: `_say(text)` for output and `_ask(prompt)` for input. No other method calls `print()` or `input()`. Only `Game` does I/O; `Character`, `Item` and `Quest` never print.
-- the hero's action is decided in one place, `_choose_hero_action`. Interactive: a numbered menu (0 = attack, 1..n = use an inventory item). Demo: an automatic rule (use a consumable when health is below half, otherwise attack). Both return the item to use, or `None` to attack.
+- the hero's action is decided in one place, `_choose_hero_action`. Interactive: a numbered menu (0 = attack, 1..n = use an inventory item). Demo: an automatic rule (use a health potion when health is below half, otherwise attack). Both return the item to use, or `None` to attack.
 - rewards: when an enemy is defeated, `Game` hands its reward to the hero with `Hero.pick_up(item)` instead of touching `hero.inventory` directly
 - quest completion is hardcoded for the MVP in `_check_quest()` ("all enemies are defeated"). It is the only place that knows the rule, so it can be replaced later (e.g. by a condition stored on each `Quest`) without touching the rest of `Game`.
 
@@ -126,12 +126,13 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 ## Parked for later (marked in the code with TODO / FIXME)
 
 - the hero dying to an enemy's first strike before it ever acts (matters once enemies can act first): balance the numbers, or add a rule that prevents it
-- round cap per fight (two sides with 0 attack_power loop forever); later maybe detect "no change in state for N rounds"
+- maybe detect "no change in state for N rounds"
 - sub-quests, or several quests with different goals (the completion condition would live on the quest)
-- `equipped` flag on weapons, multi-use items, a guard against stacking the same weapon's bonus, and the demo hero never equipping weapons
+- multi-use items, and the demo hero never equipping weapons
 - interactive/demo hero policies could become pluggable functions if they grow apart
 - `Quest` growth: sub-quests, `is_complete()` logic by subclasses
-- Potion subtypes (HealthPotion, ManaPotion, etc.) - Potion currently *is* a health potion. Don't split it into a hierarchy until a second potion type is actually needed; deciding the shape in advance would be guessing.
+- `Potion` subtypes (HealthPotion, ManaPotion, etc.) - Potion currently *is* a health potion. Don't split it into a hierarchy until a second potion type is actually needed
+- a dict-of-slots on Hero, with each effective_* method summing whatever's equipped in the slots relevant to it, once a second equippable item type actually exists
 
 ## Not decided yet, to think about in the next pass
 
