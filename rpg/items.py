@@ -25,7 +25,7 @@ class Weapon(Item):
         self.damage_bonus = damage_bonus
     
     def use(self, user: Character) -> None:
-        user.attack_power += self.damage_bonus
+        user.equip(self)
 
 
 class Potion(Item):

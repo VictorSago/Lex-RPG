@@ -1,17 +1,11 @@
 
 import unittest
 
-from rpg.characters import Character
+from rpg.characters import Character, Hero
 from rpg.items import Weapon, Potion
 
 
 class TestWeapon(unittest.TestCase):
-    def test_use_increases_users_attack_power(self):
-        user = Character("Test", max_health=20, attack_power=5)
-        sword = Weapon("Sword", damage_bonus=3)
-        sword.use(user)
-        self.assertEqual(user.attack_power, 8)
-
     def test_is_not_consumable(self):
         sword = Weapon("Sword", damage_bonus=3)
         self.assertFalse(sword.consumable)
@@ -19,6 +13,19 @@ class TestWeapon(unittest.TestCase):
     def test_healing_value_is_zero(self):
         sword = Weapon("Sword", damage_bonus=3)
         self.assertEqual(sword.healing_value(), 0)
+    
+    def test_use_increases_heros_attack_power(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        sword = Weapon("Sword", damage_bonus=3)
+        sword.use(hero)
+        self.assertEqual(hero.attack_power, 8)
+    
+    def test_use_on_a_plain_character_does_nothing(self):
+        # Confirms the harmless default: a Character that can't equip is unaffected.
+        character = Character("Test", max_health=20, attack_power=5)
+        sword = Weapon("Sword", damage_bonus=3)
+        sword.use(character)
+        self.assertEqual(character.attack_power, 5)
 
 
 class TestPotion(unittest.TestCase):

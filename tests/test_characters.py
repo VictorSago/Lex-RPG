@@ -75,11 +75,34 @@ class TestHero(unittest.TestCase):
         hero.use_item(sword)
         self.assertIn(sword, hero.inventory)
     
+    def test_equip_sets_weapon_and_increases_attack_power(self):
+            hero = Hero("Test", max_health=20, attack_power=5)
+            sword = Weapon("Sword", damage_bonus=3)
+            hero.equip(sword)
+            self.assertIs(hero.equipped_weapon, sword)
+            self.assertEqual(hero.attack_power, 8)
+        
+    def test_equipping_same_weapon_again_does_not_stack(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        sword = Weapon("Sword", damage_bonus=3)
+        hero.equip(sword)
+        hero.equip(sword)
+        self.assertEqual(hero.attack_power, 8)
+            
+    def test_equipping_a_different_weapon_replaces_the_bonus(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        rusty = Weapon("Rusty Sword", damage_bonus=3)
+        steel = Weapon("Steel Sword", damage_bonus=10)
+        hero.equip(rusty)
+        hero.equip(steel)
+        self.assertEqual(hero.attack_power, 15)
+        self.assertIs(hero.equipped_weapon, steel)
+    
     def test_move_to_sets_location(self):
         hero = Hero("Link", max_health=20, attack_power=5)
         cave = Location("Cave", "A dark cave.")
         hero.move_to(cave)
-        self.assertIs(hero.location, cave)    
+        self.assertIs(hero.location, cave)
 
 
 if __name__ == "__main__":

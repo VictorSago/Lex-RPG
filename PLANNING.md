@@ -149,8 +149,8 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
 | **done** | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit. Merge. |
 | **done** | unit tests | Start the first wave of tests. Commit. |
-| **now** | tests | Continue with tests. Commit. Merge. |
-| **now** | locations | Character movement. Commit. Merge. |
-| 10 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
+| **partial** | tests | More tests. Integration tests for `game.py`. Commit. Merge. |
+| **done** | locations | Character movement. Commit. Merge. |
+| **now** | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
 | 11 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
 | 12 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |

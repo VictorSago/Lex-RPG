@@ -53,14 +53,18 @@ class Game:
     
     def _fight(self, enemy: Enemy) -> None:
         self._say(f"\nA fight begins: {self.hero} vs {enemy}")
-        # TODO: round cap / stalemate detection (both sides at 0 attack_power loops forever)
-        while self.hero.is_alive() and enemy.is_alive():
+        MAX_ROUNDS = 100  # safety net against a stalemate (e.g. 0 damage on both sides)
+        rounds = 0
+        while self.hero.is_alive() and enemy.is_alive() and rounds < MAX_ROUNDS:
+            rounds += 1
             for combatant in self._turn_order(enemy):
                 opponent = enemy if combatant is self.hero else self.hero
                 self._take_turn(combatant, opponent)
                 self._say(f"  {self.hero} | {enemy}")
                 if not self.hero.is_alive() or not enemy.is_alive():
                     break
+        if rounds >= MAX_ROUNDS and self.hero.is_alive() and enemy.is_alive():
+            self._say(f"The battle against {enemy.name} drags on inconclusively. Retreating!")
     
     def _turn_order(self, enemy: Enemy) -> list[Character]:
             # TODO: initiative/speed, ambush, randomness. 
