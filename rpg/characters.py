@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from rpg.items import Item
+    from rpg.locations import Location
 
 
 class Character:
@@ -33,6 +34,7 @@ class Hero(Character):
     def __init__(self, name: str, max_health: int, attack_power: int) -> None:
         super().__init__(name, max_health, attack_power)
         self.inventory: list[Item] = []
+        self.location: Location | None = None  # set once the world is built
     
     def pick_up(self, item: Item) -> None:
         self.inventory.append(item)
@@ -43,6 +45,9 @@ class Hero(Character):
         item.use(self)
         if item.consumable:
             self.inventory.remove(item)
+    
+    def move_to(self, location: Location) -> None:
+        self.location = location
 
 
 class Enemy(Character):

@@ -3,6 +3,7 @@ import unittest
 
 from rpg.characters import Character, Hero, Enemy
 from rpg.items import Potion, Weapon
+from rpg.locations import Location
 
 class TestCharacter(unittest.TestCase):
     def test_take_damage_reduces_current_health(self):
@@ -73,6 +74,12 @@ class TestHero(unittest.TestCase):
         hero.pick_up(sword)
         hero.use_item(sword)
         self.assertIn(sword, hero.inventory)
+    
+    def test_move_to_sets_location(self):
+        hero = Hero("Link", max_health=20, attack_power=5)
+        cave = Location("Cave", "A dark cave.")
+        hero.move_to(cave)
+        self.assertIs(hero.location, cave)    
 
 
 if __name__ == "__main__":
