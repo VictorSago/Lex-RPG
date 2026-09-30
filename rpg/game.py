@@ -31,8 +31,11 @@ class Game:
         print(text)
     
     def _ask(self, prompt: str) -> str:
-        # # TODO: handle EOFError (closed input) and KeyboardInterrupt gracefully
-        return input(prompt).strip()
+        try:
+            return input(prompt).strip()
+        except (EOFError, KeyboardInterrupt):
+            self._say("\nExiting the game.")
+            raise SystemExit(0)
     
     def _enter_location(self, location: Location) -> None:
         self._visited.add(location)

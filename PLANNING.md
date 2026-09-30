@@ -150,7 +150,7 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit. Merge. |
 | **done** | unit tests | Start the first wave of tests. Commit. |
 | **now** | tests | Continue with tests. Commit. Merge. |
-| 9 | locations | Character movement. Commit. Merge. |
+| **now** | locations | Character movement. Commit. Merge. |
 | 10 | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
 | 11 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
 | 12 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |
