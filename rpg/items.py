@@ -26,6 +26,8 @@ class Item:
 
 class Weapon(Item):
     def __init__(self, name: str, damage_bonus: int):
+        if damage_bonus < 0:
+            raise ValueError("damage_bonus cannot be negative")
         super().__init__(name, consumable=False)
         self.damage_bonus = damage_bonus
     
@@ -38,6 +40,8 @@ class Weapon(Item):
 
 class Potion(Item):
     def __init__(self, name: str, heal_amount: int) -> None:
+        if heal_amount < 0:
+            raise ValueError("heal_amount cannot be negative")
         super().__init__(name, consumable=True)
         self.heal_amount = heal_amount
     

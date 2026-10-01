@@ -43,6 +43,10 @@ class TestWeapon(unittest.TestCase):
         character = Character("Test", max_health=20, attack_power=5)
         sword = Weapon("Sword", damage_bonus=3)
         self.assertFalse(sword.is_in_use(character))
+    
+    def test_constructor_rejects_negative_damage_bonus(self):
+        with self.assertRaises(ValueError):
+            Weapon("Cursed Sword", damage_bonus=-1)
 
 class TestPotion(unittest.TestCase):
     def test_use_heals_user(self):
@@ -77,6 +81,10 @@ class TestPotion(unittest.TestCase):
         hero.take_damage(1)
         potion = Potion("Health Potion", heal_amount=5)
         self.assertFalse(potion.is_in_use(hero))
+    
+    def test_constructor_rejects_negative_heal_amount(self):
+        with self.assertRaises(ValueError):
+            Potion("Poison", heal_amount=-1)
 
 
 if __name__ == "__main__":

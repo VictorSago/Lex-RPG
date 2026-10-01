@@ -46,6 +46,28 @@ class TestCharacter(unittest.TestCase):
     def test_effective_attack_power_defaults_to_attack_power(self):
         c = Character("Test", max_health=10, attack_power=6)
         self.assertEqual(c.effective_attack_power(), 6)
+    
+    def test_constructor_rejects_zero_max_health(self):
+        with self.assertRaises(ValueError):
+            Character("Test", max_health=0, attack_power=5)
+    
+    def test_constructor_rejects_negative_max_health(self):
+            with self.assertRaises(ValueError):
+                Character("Test", max_health=-10, attack_power=5)
+
+    def test_constructor_rejects_negative_attack_power(self):
+        with self.assertRaises(ValueError):
+            Character("Test", max_health=10, attack_power=-1)
+
+    def test_take_damage_rejects_negative_amount(self):
+        c = Character("Test", max_health=10, attack_power=1)
+        with self.assertRaises(ValueError):
+            c.take_damage(-5)
+
+    def test_heal_rejects_negative_amount(self):
+        c = Character("Test", max_health=10, attack_power=1)
+        with self.assertRaises(ValueError):
+            c.heal(-5)
 
 
 class TestHero(unittest.TestCase):

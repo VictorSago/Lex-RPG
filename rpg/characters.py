@@ -11,6 +11,10 @@ if TYPE_CHECKING:
 
 class Character:
     def __init__(self, name: str, max_health: int, attack_power: int) -> None:
+        if max_health <= 0:
+            raise ValueError("max_health must be positive")
+        if attack_power < 0:
+            raise ValueError("attack_power cannot be negative")
         self.name = name
         self.max_health = max_health
         self.current_health = self.max_health
