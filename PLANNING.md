@@ -88,6 +88,7 @@ Considered and rejected for now: a set of boolean flags on `Item` (consumable, h
 - represents a goal (e.g. "defeat the enemy")
 - attributes: `name`, `description`, `_is_complete` (bool)
 - behavior: `complete()`, `is_complete()`. Stays "dumb" - `Game` decides when to call `complete()`, `Quest` never checks anything itself.
+- completion is a stored flag set by `Game` for now. Later: derive it (subclasses overriding `is_complete()`, sub-quests as a list of Quests).
 
 ## Locations
 
