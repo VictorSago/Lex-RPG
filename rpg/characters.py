@@ -56,7 +56,7 @@ class Hero(Character):
     
     def use_item(self, item: Item) -> None:
         if item not in self.inventory:
-            raise ValueError(f"{self.name} does not {item.name} in the inventory")
+            raise ValueError(f"{self.name} does not have {item.name} in the inventory")
         item.use(self)
         if item.consumable:
             self.inventory.remove(item)

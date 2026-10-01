@@ -1,14 +1,11 @@
 
 # Lex-RPG - Planning Notes
 
-Working design notes. This file will change and grow as decisions get made,
-and will eventually be superseded by the actual code and docstrings (and a proper `README.md`).
+Working design notes. This file records design decisions, deferred ideas, and remaining development work. It is not intended to duplicate the complete implementation, which is documented by the code and docstrings.
 
 ## Overall concept
 
-A turn-based-ish RPG system: a hero explores, fights enemies, collects/uses
-items, and completes a quest. The program should run through a full loop from
-start to a "quest complete" end state.
+A turn-based-ish RPG system: a hero explores, fights enemies, collects/uses items, and completes a quest. The program should run through a full loop from start to a "quest complete" end state.
 
 ## Rough repo structure (surface-level, will shift)
 
@@ -94,14 +91,58 @@ Considered and rejected for now: a set of boolean flags on `Item` (consumable, h
 
 ### Game / World
 
-- owns the hero, the enemies and the quest
-- attributes: `hero`, `locations`, `quest`, `interactive` (bool: True = the player chooses the hero's actions, False = automatic demo)
-- `run()` only does the outer flow: for each enemy -> fight it -> if the hero survived, collect the reward and check the quest. It stops when the hero falls or the enemies run out.
-- `run()` delegates to small private helpers (leading underscore = internal): `_enter_location(location)`, `_fight(enemy)`, `_turn_order(enemy)`, `_take_turn(combatant, opponent)`, `_choose_hero_action()`, `_collect_reward(enemy)`, `_check_quest()`
-- all input and output goes through exactly two methods: `_say(text)` for output and `_ask(prompt)` for input. No other method calls `print()` or `input()`. Only `Game` does I/O; `Character`, `Item` and `Quest` never print.
-- the hero's action is decided in one place, `_choose_hero_action`. Interactive: a numbered menu (0 = attack, 1..n = use an inventory item). Demo: an automatic rule (use a health potion when health is below half, otherwise attack). Both return the item to use, or `None` to attack.
-- rewards: when an enemy is defeated, `Game` hands its reward to the hero with `Hero.pick_up(item)` instead of touching `hero.inventory` directly
-- quest completion is hardcoded for the MVP in `_check_quest()` ("all enemies are defeated"). It is the only place that knows the rule, so it can be replaced later (e.g. by a condition stored on each `Quest`) without touching the rest of `Game`.
+`Game` ties the other objects together and controls the overall game flow.
+
+- attributes:
+  + `hero`
+  + `locations` - the locations that make up the game world
+  + `quest`
+  + `interactive` - `True` for player-controlled play, `False` for the automatic demo
+  + `_visited` - a set of locations already visited during exploration
+- the `Hero` is placed at a `Location` and moves between locations through their exits
+- each `Location` can contain enemies and connections to other locations
+- enemies belong to locations rather than directly to `Game`
+- when the hero enters a location, `Game` handles any living enemies there
+- after an enemy is defeated, `Game` collects its reward through `Hero.pick_up()`
+- quest completion is checked after enemies are defeated; for the MVP, the quest is complete when no living enemies remain anywhere in the world
+
+`run()` controls the outer exploration loop:
+
+  1. enter the hero's current location
+  2. fight any living enemies there
+  3. collect rewards and check the quest
+  4. if the quest is not complete and the hero is still alive, choose whether and where to move
+  5. announce the ending when exploration stops, the hero dies, or the quest is complete
+
+`run()` delegates the details to small private helpers:
+
+- `_enter_location(location)` - describes the location and handles its enemies
+- `_fight(enemy)` - runs combat
+- `_turn_order(enemy)` - determines who acts first
+- `_take_turn(combatant, opponent)` - performs one combatant's turn
+- `_choose_hero_action()` - selects the hero's combat action
+- `_collect_reward(enemy)` - gives an enemy's reward to the hero
+- `_check_quest()` - checks the current MVP quest condition
+- `_choose_move(location)` - chooses the next location
+- `_announce_ending()` - reports why the game ended
+
+All input and output goes through exactly two methods:
+
+- `_say(text)` for output
+- `_ask(prompt)` for input
+
+Only `Game` performs I/O; `Character`, `Item`, `Location`, and `Quest` do not print or read input.
+
+The hero's combat action is decided in `_choose_hero_action()`:
+
+- interactive mode presents a numbered menu
+- demo mode automatically uses a healing item when the hero's health is below half; otherwise the hero attacks
+
+The demo's movement policy automatically chooses an unvisited connected location. Interactive mode lets the player choose an available exit or stop exploring.
+
+Rewards are passed to the hero through `Hero.pick_up()` rather than modifying the inventory directly.
+
+The current world is deliberately small: three connected locations and one enemy. More locations, enemies, items, and quests are extensions.
 
 ## What "done" looks like for the minimum version
 
@@ -154,4 +195,4 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | locations | Character movement. Commit. Merge. |
 | **now** | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
 | 11 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
-| 12 | README + final cleanup | fill in the real `README.md`, prune dead code, final push. |
+| 12 | README + final cleanup | fill in the `README.md`, prune dead code, final push. |
