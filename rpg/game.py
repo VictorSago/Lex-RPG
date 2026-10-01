@@ -15,6 +15,7 @@ class Game:
         self.interactive = interactive
         self._visited: set[Location] = set()
         self._path: list[Location] = []
+        self._enemies_defeated = 0
 
     def run(self) -> None:
         self._say(f"Quest: {self.quest.name} - {self.quest.description}")
@@ -50,6 +51,7 @@ class Game:
             if not self.hero.is_alive():
                 return
             self._say(f"{enemy.name} is defeated!")
+            self._enemies_defeated += 1
             self._collect_reward(enemy)
             self._check_quest()
     
@@ -190,3 +192,7 @@ class Game:
             self._say(f"{self.hero.name} can rest, for now.")
         else:
             self._say(f"\n{self.hero.name} stops exploring. The quest remains unfinished.")
+        self._say("\n--- Adventure Stats ---")
+        self._say(f"Locations explored: {len(self._visited)}")
+        self._say(f"Enemies defeated: {self._enemies_defeated}")
+        self._say(f"Quest status: {'Complete' if self.quest.is_complete() else 'Incomplete'}")
