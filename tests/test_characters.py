@@ -1,7 +1,7 @@
 
 import unittest
 
-from rpg.characters import Character, Hero, Enemy
+from rpg.characters import Character, Hero
 from rpg.items import Potion, Weapon
 from rpg.locations import Location
 

@@ -82,10 +82,9 @@ Considered and rejected for now: a set of boolean flags on `Item` (consumable, h
 ### Quest
 
 - represents a goal (e.g. "defeat the enemy")
-- needs a way to check whether it's been completed
-- attributes: `description`, `_is_complete` (bool)
-- behavior: something marks it complete - either the `Game` checks a condition (e.g. "target enemy is dead") and calls `quest.complete()`, or the quest itself holds a reference to what it's tracking and has `check_complete()`. Leaning toward the *Game* driving this rather than the `Quest` reaching out to check enemy state itself - keeps `Quest` simple and dumb (just a flag + description).
-- add `is_complete()`
+- attributes: `name`, `description`, `_is_complete` (bool)
+- behavior: `complete()`, `is_complete()`. Stays "dumb" - `Game` decides when to call `complete()`, `Quest` never checks anything itself.
+- completion is a stored flag set by `Game` for now. Later: derive it (subclasses overriding `is_complete()`, sub-quests as a list of Quests).
 
 ## Tying it together
 
