@@ -18,6 +18,7 @@ The game follows a hero exploring a small world, fighting enemies, collecting an
 * Interactive play with player choices
 * An automatic demo mode for running the game without input
 * Input/output handled by the `Game` class, keeping the other classes independent of user interaction
+* Validation of invalid or no-op actions (negative stats rejected at creation, already-equipped weapons and full-health potions filtered from menus, actions on invalid items rejected)
 
 ## Project structure
 
@@ -26,13 +27,20 @@ Lex-RPG/
 ├── main.py
 ├── PLANNING.md
 ├── README.md
-└── rpg/
+├── .gitignore
+├── rpg/
+│   ├── __init__.py
+│   ├── characters.py
+│   ├── game.py
+│   ├── items.py
+│   ├── locations.py
+│   └── quests.py
+└── tests/
     ├── __init__.py
-    ├── characters.py
-    ├── game.py
-    ├── items.py
-    ├── locations.py
-    └── quests.py
+    ├── test_characters.py
+    ├── test_items.py
+    ├── test_locations.py
+    └── test_quests.py
 ```
 
 ### Main modules
@@ -72,11 +80,17 @@ To see the available command-line options:
 python main.py --help
 ```
 
+## Running the tests
+
+```bash
+python -m unittest
+```
+
 ## Current game
 
-The current demonstration starts the hero at the Village Outskirts. The hero can travel through the Dark Forest to the Goblin Cave, where a goblin must be defeated. The goblin drops a Rusty Sword, which the hero can collect and use. A Health Potion is available from the start.
+The hero starts at the Village Outskirts and can explore a small branching world: a path north through the Dark Forest leads to a side route (the Old Bridge and the Abandoned Mill) as well as to the Goblin Cave. A Goblin and a Bandit must be defeated; each drops a weapon the hero can equip. A Health Potion is available from the start.
 
-The current quest is to defeat the goblin threatening the village.
+The current quest is "Clear the Wilds" - rid the woods of the goblin and the bandit threatening the village.
 
 ## Status
 

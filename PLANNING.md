@@ -19,14 +19,16 @@ Lex-RPG/
 │   ├── __init__.py
 │   ├── characters.py     # Character, Hero, Enemy (+ subclasses)
 │   ├── items.py          # Item, Weapon, Potion, etc.
+│   ├── locations.py      # Location
 │   ├── quests.py         # Quest
 │   └── game.py           # Game/World - ties everything together
 └── tests/                # unit tests, one file per rpg/ module
     ├── __init__.py
     ├── test_characters.py
     ├── test_items.py
+    ├── test_locations.py    
     ├── test_quests.py
-    └── test_game.py      # later - Game does I/O, not a pure unit test
+    └── test_game.py      # later if there's time - Game does I/O, not a pure unit test
 ```
 
 ## Characters
@@ -37,20 +39,22 @@ shared idea: something with a name and health that can take damage and be checke
 
 - attributes: `name`, `max_health`, `current_health`, `attack_power`
 - behavior:
-  + `take_damage(amount)` reduces health (not below 0)
+  + `take_damage(amount)` reduces health (not below 0); rejects negative `amount`
+  + `heal(amount)` (limited at `max_health`); rejects negative `amount`
   + `is_alive()` checks health > 0
-  + `attack(target)` deals damage to target based on `self.attack_power`
-  + `heal(amount)` (limited at `max_health`)
-- add `__str__` (a status line like "Link (HP 12/20)")
+  + `effective_attack_power()` - `attack_power` by default; `Hero` overrides it to include the equipped weapon's bonus, computed fresh each call rather than stored, so it can never drift out of sync
+  + `attack(target)` - no-ops if either side is already dead; otherwise damages `target` by `self.effective_attack_power()`
+- validation: constructor rejects non-positive `max_health` or negative `attack_power` (`ValueError`)
 
 ### Hero (a kind of Character)
 
 - the player-controlled character
 - carries items, can use them
-- adds: `inventory` (a list of `Item`s)
+- adds: `inventory` (list of `Item`s), `location`, `equipped_weapon`
 - behavior:
-  + `use_item(item)` - applies the item's effect to itself, then removes the item from inventory only if `item.consumable`, or keeps it (a weapon we re-use)
-  + `pick_up(item)`
+  + `use_item(item)` - raises `ValueError` if not in inventory; calls `item.use(self)`; removes it afterward only if `item.consumable`
+  + `pick_up(item)`, `move_to(location)`
+  + `equip(item)` - no-op unless `item` is a `Weapon`; replaces `equipped_weapon` (no arithmetic - `effective_attack_power()` reads it fresh each time)
 
 ### Enemy (a kind of Character)
 
@@ -63,13 +67,13 @@ shared idea: something with a name and health that can take damage and be checke
 
 ### Item (base)
 
-- something the hero can carry and use
-- different item types should DO different things when used
 - attributes: `name`, the `consumable` flag (Weapon: False, Potion: True)
-- behavior: `use(target)` - base version does nothing or raises `NotImplementedError`
-  + `Weapon.use(user)` -> equips itself, boosting `user.attack_power`
+- behavior: `use(user)` - base version raises `NotImplementedError`
+  + `Weapon.use(user)` -> calls `user.equip(self)`; doesn't touch `attack_power` directly
   + `Potion.use(user)` -> heals `user`
-- polymorphism: `Hero.use_item(item)` just calls `item.use(...)` without caring which kind it is
+- `healing_value()` - how much this item would heal if used (0 by default)
+- `is_in_use(user)` - whether using this item right now would have no effect (0 by default; `Weapon` overrides it to check if it's the hero's currently equipped weapon; `Potion` overrides it to check if the user is already at full health). Used to filter/label items in both the combat and exploration menus so the player can't waste a turn or a consumable on a no-op action.
+- validation: `Weapon`/`Potion` constructors reject a negative `damage_bonus`/`heal_amount` (`ValueError`)
 
 #### Item design principle (decided)
 
@@ -82,10 +86,15 @@ Considered and rejected for now: a set of boolean flags on `Item` (consumable, h
 ### Quest
 
 - represents a goal (e.g. "defeat the enemy")
-- needs a way to check whether it's been completed
-- attributes: `description`, `_is_complete` (bool)
-- behavior: something marks it complete - either the `Game` checks a condition (e.g. "target enemy is dead") and calls `quest.complete()`, or the quest itself holds a reference to what it's tracking and has `check_complete()`. Leaning toward the *Game* driving this rather than the `Quest` reaching out to check enemy state itself - keeps `Quest` simple and dumb (just a flag + description).
-- add `is_complete()`
+- attributes: `name`, `description`, `_is_complete` (bool)
+- behavior: `complete()`, `is_complete()`. Stays "dumb" - `Game` decides when to call `complete()`, `Quest` never checks anything itself.
+
+## Locations
+
+### Location
+
+- attributes: `name`, `description`, `exits` (dict: direction -> `Location`), `enemies` (list)
+- behavior: `has_living_enemies()`; `add_enemy(enemy)`; `add_exit(direction, destination, reciprocal=None)` - the only ways to mutate `exits`/`enemies` from outside, mirroring `Hero.pick_up()`'s boundary discipline. `reciprocal` optionally links the return direction in one call, closing off the "forgot to link both ways" authoring mistake.
 
 ## Tying it together
 
@@ -168,17 +177,19 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 
 - the hero dying to an enemy's first strike before it ever acts (matters once enemies can act first): balance the numbers, or add a rule that prevents it
 - maybe detect "no change in state for N rounds"
-- sub-quests, or several quests with different goals (the completion condition would live on the quest)
-- multi-use items, and the demo hero never equipping weapons
-- interactive/demo hero policies could become pluggable functions if they grow apart
 - `Quest` growth: sub-quests, `is_complete()` logic by subclasses
-- `Potion` subtypes (HealthPotion, ManaPotion, etc.) - Potion currently *is* a health potion. Don't split it into a hierarchy until a second potion type is actually needed
+- `Quest.reactivate()` as its own method, if completed quests ever need to un-complete - not a bool param on complete()
+- multi-use items, and the demo hero never equipping weapons
+- items lying on the ground in a Location (vs. only enemy-drop rewards) - deferred, not built
+- `Potion` subtypes (HealthPotion, ManaPotion, etc.) - Potion currently *is* a health potion. Don't split into a hierarchy until a second potion type is actually needed
 - a dict-of-slots on Hero, with each effective_* method summing whatever's equipped in the slots relevant to it, once a second equippable item type actually exists
+- interactive/demo hero policies could become pluggable functions if they grow apart
+- a serializable "game state" (hero stats/inventory/location, quest status, each location's enemies) to enable a future save/resume feature - deferred until an actual save/load requirement exists; the natural shape would be a to_state()/from_state() pair on Game
 
-## Not decided yet, to think about in the next pass
+## Settled (previously open)
 
-- how many enemy types, how many item types (keep it small)
-- should at least one enemy override behavior (not just stats)?
+- enemy/item roster for the MVP: 2 enemy types (Goblin, Bandit - differ only by stats, no behavior override), 2 item types (Weapon, Potion)
+- whether an enemy needs genuinely different behavior (not just stats): not for the MVP; a self-healing enemy or similar remains a possible future addition, not a current plan
 
 ## Approximate Roadmap
 
@@ -189,10 +200,14 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | `items.py` bodies | Item, Weapon, Potion, using (`use(self, user)`). Commit. |
 | **done** | `quests.py` body | simple flag-and-description class for now. Commit. |
 | **done** | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
-| **done** | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit. Merge. |
+| **done** | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit-merge. |
 | **done** | unit tests | Start the first wave of tests. Commit. |
-| **partial** | tests | More tests. Integration tests for `game.py`. Commit. Merge. |
-| **done** | locations | Character movement. Commit. Merge. |
-| **now** | Edge cases / invalid actions | attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
-| 11 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
-| 12 | README + final cleanup | fill in the `README.md`, prune dead code, final push. |
+| **partial** | tests | More tests. Integration tests for `game.py`. Commit-merge. |
+| **done** | locations | Character movement. Commit-merge. |
+| **done** | Branching map + demo backtracking | 5 locations, 2 enemies, demo backtracks via path-history scan. Commit. |
+| **done** | Exploration-time inventory management | use/equip items outside combat, not just during a fight. Commit. |
+| **done** | End-of-run stats | locations explored, enemies defeated, quest status. Commit. |
+| **now** | Edge cases / invalid actions | is_in_use (equipped weapon, full-health potion), negative-value validation, dead-combatant guard on attack(). Commit per fix. |
+| **done** | README | fill in the `README.md`. Commit. |
+| 15 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
+| 16 | final cleanup | prune dead code, final push. |
