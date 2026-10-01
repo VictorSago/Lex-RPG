@@ -17,18 +17,21 @@ class Character:
         self.attack_power = attack_power
     
     def take_damage(self, amount: int) -> None:
+        if amount < 0:
+            raise ValueError("damage amount cannot be negative")
         self.current_health = max(0, self.current_health - amount)
     
     def heal(self, amount: int) -> None:
+        if amount < 0:
+            raise ValueError("heal amount cannot be negative")
         self.current_health = min(self.max_health, self.current_health + amount)
     
     def effective_attack_power(self) -> int:
         return self.attack_power
     
     def attack(self, target: Character) -> None:
-        if not (self.is_alive() and target.is_alive()):
-            return
-        target.take_damage(self.effective_attack_power())
+        if self.is_alive() and target.is_alive():
+            target.take_damage(self.effective_attack_power())
     
     def is_alive(self) -> bool:
         return self.current_health > 0
