@@ -26,6 +26,8 @@ class Character:
         return self.attack_power
     
     def attack(self, target: Character) -> None:
+        if not (self.is_alive() and target.is_alive()):
+            return
         target.take_damage(self.effective_attack_power())
     
     def is_alive(self) -> bool:

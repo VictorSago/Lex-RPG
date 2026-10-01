@@ -67,8 +67,14 @@ class TestPotion(unittest.TestCase):
         potion = Potion("Health Potion", heal_amount=6)
         self.assertEqual(potion.healing_value(), 6)
     
-    def test_is_in_use_always_false(self):
+    def test_is_in_use_true_at_full_health(self):
         hero = Hero("Test", max_health=20, attack_power=5)
+        potion = Potion("Health Potion", heal_amount=5)
+        self.assertTrue(potion.is_in_use(hero))
+
+    def test_is_in_use_false_when_damaged(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        hero.take_damage(1)
         potion = Potion("Health Potion", heal_amount=5)
         self.assertFalse(potion.is_in_use(hero))
 

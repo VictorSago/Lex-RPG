@@ -193,6 +193,6 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | unit tests | Start the first wave of tests. Commit. |
 | **partial** | tests | More tests. Integration tests for `game.py`. Commit. Merge. |
 | **done** | locations | Character movement. Commit. Merge. |
-| **now** | Edge cases / invalid actions | using an item not in inventory, attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
+| **now** | Edge cases / invalid actions | attacking a dead enemy, using a potion at full health, etc. Commit per fix. |
 | 11 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
 | 12 | README + final cleanup | fill in the `README.md`, prune dead code, final push. |

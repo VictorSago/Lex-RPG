@@ -158,20 +158,20 @@ class Game:
             return
         self._say("Inventory:")
         for number, item in enumerate(inventory, start=1):
-            tag = " (equipped)" if item.is_in_use(self.hero) else ""
+            tag = " (no effect right now)" if item.is_in_use(self.hero) else ""
             self._say(f"  {number}) {item.name}{tag}")
         self._say("  0) Back")
         answer = self._ask("> ")
         if answer.isdigit() and 1 <= int(answer) <= len(inventory):
             item = inventory[int(answer) - 1]
             if item.is_in_use(self.hero):
-                self._say(f"{item.name} is already equipped.")
+                self._say(f"Using {item.name} wouldn't do anything right now.")
                 return
             self._say(f"{self.hero.name} uses {item.name}.")
             self.hero.use_item(item)
 
     def _demo_move(self, location: Location) -> bool:
-        for direction, destination in location.exits.items():
+        for destination in location.exits.values():
             if destination not in self._visited:
                 self.hero.move_to(destination)
                 return True

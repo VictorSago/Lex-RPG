@@ -44,5 +44,8 @@ class Potion(Item):
     def use(self, user: Character) -> None:
         user.heal(self.heal_amount)
     
+    def is_in_use(self, user: Character) -> bool:
+        return user.current_health >= user.max_health
+    
     def healing_value(self) -> int:
         return self.heal_amount
