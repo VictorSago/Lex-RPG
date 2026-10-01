@@ -14,6 +14,7 @@ class Game:
         self.quest = quest
         self.interactive = interactive
         self._visited: set[Location] = set()
+        self._path: list[Location] = []
 
     def run(self) -> None:
         self._say(f"Quest: {self.quest.name} - {self.quest.description}")
@@ -39,6 +40,7 @@ class Game:
     
     def _enter_location(self, location: Location) -> None:
         self._visited.add(location)
+        self._path.append(location)
         self._say(f"\n== {location.name} ==")
         self._say(location.description)
         for enemy in list(location.enemies):
@@ -148,6 +150,13 @@ class Game:
         for direction, destination in location.exits.items():
             if destination not in self._visited:
                 self.hero.move_to(destination)
+                return True
+        # Dead end: backtrack to the nearest earlier location that still has
+        # an unexplored exit, and let the next loop iteration try again from there.
+        for previous in reversed(self._path[:-1]):
+            if any(dest not in self._visited for dest in previous.exits.values()):
+                self._say(f"{self.hero.name} heads back to {previous.name} to try another path.")
+                self.hero.move_to(previous)
                 return True
         return False
     

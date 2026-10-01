@@ -17,16 +17,22 @@ def parse_args() -> argparse.Namespace:
 
 def build_locations() -> list[Location]:
     village = Location("Village Outskirts", "A quiet path leads out of the village.")
-    forest = Location("Dark Forest", "Twisted trees block most of the light.")
+    forest = Location("Dark Forest", "Twisted trees block most of the light. Paths lead off in several directions.")
     cave = Location("Goblin Cave", "A damp cave, littered with bones.")
+    bridge = Location("Old Bridge", "A rickety bridge creaks underfoot.")
+    mill = Location("Abandoned Mill", "Broken machinery looms in the dark.")
     
     village.add_exit("north", forest, reciprocal="south")
     forest.add_exit("north", cave, reciprocal="south")
+    forest.add_exit("east", bridge, reciprocal="west")
+    bridge.add_exit("east", mill, reciprocal="west")
     
-    cave.add_enemy(Enemy("Goblin", max_health=15, attack_power=4,
-                              reward=Weapon("Rusty Sword", damage_bonus=3)))
+    cave.add_enemy(Enemy("Goblin", max_health=15, attack_power=4, 
+                         reward=Weapon("Rusty Sword", damage_bonus=3)))
+    mill.add_enemy(Enemy("Bandit", max_health=12, attack_power=6, 
+                         reward=Weapon("Steel Sword", damage_bonus=6)))
     
-    return [village, forest, cave]
+    return [village, forest, cave, bridge, mill]
 
 
 def build_game(interactive: bool) -> Game:
