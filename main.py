@@ -40,7 +40,7 @@ def build_game(interactive: bool) -> Game:
     hero.pick_up(Potion("Health Potion", heal_amount=10))
     locations = build_locations()
     hero.move_to(locations[0])
-    quest = Quest("Goblin Threat", "Defeat the goblin threatening the village")
+    quest = Quest("Clear the Wilds", "Rid the woods of the goblin and the bandit threatening the village")
     
     return Game(hero, locations, quest, interactive=interactive)
 

@@ -130,29 +130,47 @@ class Game:
         return self._demo_move(location)
     
     def _prompt_move(self, location: Location) -> bool:
-        self._say("\nWhere to?")
-        options = list(location.exits.items())
-        for number, (direction, destination) in enumerate(options, start=1):
-            self._say(f"  {number}) Go {direction} to {destination.name}")
-        self._say("  0) Stop exploring")
         while True:
+            self._say("\nWhat next?")
+            self._say("  i) Check inventory / use or equip an item")
+            for number, (direction, destination) in enumerate(location.exits.items(), start=1):
+                self._say(f"  {number}) Go {direction} to {destination.name}")
+            self._say("  0) Stop exploring")
             answer = self._ask("> ")
-            if answer.isdigit() and int(answer) <= len(options):
+            if answer.lower() == "i":
+                self._manage_inventory()
+                continue
+            if answer.isdigit() and int(answer) <= len(location.exits):
                 choice = int(answer)
                 if choice == 0:
                     return False
-                _, destination = options[choice - 1]
+                _, destination = list(location.exits.items())[choice - 1]
                 self.hero.move_to(destination)
                 return True
-            self._say("Please enter one of the numbers listed above.")
+            self._say("Please enter one of the options listed above.")
+    
+    def _manage_inventory(self) -> None:
+        inventory = self.hero.inventory
+        if not inventory:
+            self._say("Your inventory is empty.")
+            return
+        self._say("Inventory:")
+        for number, item in enumerate(inventory, start=1):
+            self._say(f"  {number}) {item.name}")
+        self._say("  0) Back")
+        answer = self._ask("> ")
+        if answer.isdigit() and 1 <= int(answer) <= len(inventory):
+            item = inventory[int(answer) - 1]
+            self._say(f"{self.hero.name} uses {item.name}.")
+            self.hero.use_item(item)
 
     def _demo_move(self, location: Location) -> bool:
         for direction, destination in location.exits.items():
             if destination not in self._visited:
                 self.hero.move_to(destination)
                 return True
-        # Dead end: backtrack to the nearest earlier location that still has
-        # an unexplored exit, and let the next loop iteration try again from there.
+        # Dead end: backtrack to the nearest earlier location that still has an
+        # unexplored exit, and let the next loop iteration try again from there.
         for previous in reversed(self._path[:-1]):
             if any(dest not in self._visited for dest in previous.exits.values()):
                 self._say(f"{self.hero.name} heads back to {previous.name} to try another path.")
