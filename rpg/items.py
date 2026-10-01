@@ -14,6 +14,11 @@ class Item:
     def use(self, user: Character) -> None:
         raise NotImplementedError
     
+    def is_in_use(self, user: Character) -> bool:
+        """Whether using this item right now would have no effect
+        (e.g. a weapon that's already equipped). False by default."""
+        return False
+    
     def healing_value(self) -> int:
         """How much health using this item would restore. 0 if it doesn't heal."""
         return 0
@@ -26,6 +31,9 @@ class Weapon(Item):
     
     def use(self, user: Character) -> None:
         user.equip(self)
+    
+    def is_in_use(self, user: Character) -> bool:
+        return getattr(user, "equipped_weapon", None) is self
 
 
 class Potion(Item):

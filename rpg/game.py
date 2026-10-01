@@ -90,7 +90,7 @@ class Game:
         return self._demo_action()
     
     def _prompt_action(self) -> Item | None:
-        inventory = self.hero.inventory
+        inventory = [item for item in self.hero.inventory if not item.is_in_use(self.hero)]
         self._say("Your move:")
         self._say("  0) Attack")
         for number, item in enumerate(inventory, start=1):
@@ -156,11 +156,15 @@ class Game:
             return
         self._say("Inventory:")
         for number, item in enumerate(inventory, start=1):
-            self._say(f"  {number}) {item.name}")
+            tag = " (equipped)" if item.is_in_use(self.hero) else ""
+            self._say(f"  {number}) {item.name}{tag}")
         self._say("  0) Back")
         answer = self._ask("> ")
         if answer.isdigit() and 1 <= int(answer) <= len(inventory):
             item = inventory[int(answer) - 1]
+            if item.is_in_use(self.hero):
+                self._say(f"{item.name} is already equipped.")
+                return
             self._say(f"{self.hero.name} uses {item.name}.")
             self.hero.use_item(item)
 

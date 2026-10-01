@@ -27,6 +27,22 @@ class TestWeapon(unittest.TestCase):
         sword.use(character)
         self.assertEqual(character.effective_attack_power(), 5)
 
+    def test_is_in_use_false_when_not_equipped(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        sword = Weapon("Sword", damage_bonus=3)
+        hero.pick_up(sword)
+        self.assertFalse(sword.is_in_use(hero))
+        
+    def test_is_in_use_true_when_equipped(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        sword = Weapon("Sword", damage_bonus=3)
+        hero.equip(sword)
+        self.assertTrue(sword.is_in_use(hero))
+        
+    def test_is_in_use_false_for_plain_character(self):
+        character = Character("Test", max_health=20, attack_power=5)
+        sword = Weapon("Sword", damage_bonus=3)
+        self.assertFalse(sword.is_in_use(character))
 
 class TestPotion(unittest.TestCase):
     def test_use_heals_user(self):
@@ -50,6 +66,11 @@ class TestPotion(unittest.TestCase):
     def test_healing_value_matches_heal_amount(self):
         potion = Potion("Health Potion", heal_amount=6)
         self.assertEqual(potion.healing_value(), 6)
+    
+    def test_is_in_use_always_false(self):
+        hero = Hero("Test", max_health=20, attack_power=5)
+        potion = Potion("Health Potion", heal_amount=5)
+        self.assertFalse(potion.is_in_use(hero))
 
 
 if __name__ == "__main__":
