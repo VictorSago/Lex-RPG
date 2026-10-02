@@ -46,13 +46,13 @@ def build_game(interactive: bool) -> Game:
 
 
 def main() -> None:
-    print(f"Running {__name__} game...")
     args = parse_args()
     game = build_game(interactive=not args.demo)
     game.run()
-    print(f"Finishing game({game.hero},", 
-          f"{[l.name for l in game.locations]},", 
-          f"{game.quest.name}, Completed: {game.quest.is_complete()})")
+    
+    # print(f"Finishing game({game.hero},", 
+    #       f"{[l.name for l in game.locations]},", 
+    #       f"{game.quest.name}, Completed: {game.quest.is_complete()})")
 
 
 if __name__ == "__main__":

@@ -177,7 +177,7 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 ## Parked for later (marked in the code with TODO / FIXME)
 
 - the hero dying to an enemy's first strike before it ever acts (matters once enemies can act first): balance the numbers, or add a rule that prevents it
-- maybe detect "no change in state for N rounds"
+- stalemate detection ("no change in state for N rounds") - `_fight` already has a round cap as a blunt safety net; genuine stalemate detection would need round-by-round health snapshots, which is naturally close to the same shape as the parked game_state idea (both are about capturing state over time) - worth building together if either is ever tackled
 - `Quest` growth: sub-quests, `is_complete()` logic by subclasses
 - `Quest.reactivate()` as its own method, if completed quests ever need to un-complete - not a bool param on complete()
 - multi-use items, and the demo hero never equipping weapons
@@ -185,7 +185,7 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 - `Potion` subtypes (HealthPotion, ManaPotion, etc.) - Potion currently *is* a health potion. Don't split into a hierarchy until a second potion type is actually needed
 - a dict-of-slots on Hero, with each effective_* method summing whatever's equipped in the slots relevant to it, once a second equippable item type actually exists
 - interactive/demo hero policies could become pluggable functions if they grow apart
-- a serializable "game state" (hero stats/inventory/location, quest status, each location's enemies) to enable a future save/resume feature - deferred until an actual save/load requirement exists; the natural shape would be a to_state()/from_state() pair on Game
+- a serializable "game state" (hero stats/inventory/location, quest status, each location's enemies) to enable a future save/resume feature - deferred until an actual requirement exists; the natural shape would be a to_state()/from_state() pair on Game
 
 ## Settled (previously open)
 
@@ -202,8 +202,8 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | `quests.py` body | simple flag-and-description class for now. Commit. |
 | **done** | `game.py` body | wire hero/enemies/quest together, implement `run()` as the minimal loop. This is where the first real integration bugs will show up. |
 | **done** | `main.py` | construct one hero, one enemy, a couple of items, one quest; call `Game.run()`. First point where we'll have something demoable end-to-end. Commit - "core loop works" milestone. Commit-merge. |
-| **done** | unit tests | Start the first wave of tests. Commit. |
-| **partial** | tests | More tests. Integration tests for `game.py`. Commit-merge. |
+| **done** | unit tests | Unit tests for all classes where it's practical. Commit. |
+| **skipped** | tests | Integration tests for `game.py`. Skipped because `Game` needs mocked I/O to test meaningfully. |
 | **done** | locations | Character movement. Commit-merge. |
 | **done** | Branching map + demo backtracking | 5 locations, 2 enemies, demo backtracks via path-history scan. Commit. |
 | **done** | Exploration-time inventory management | use/equip items outside combat, not just during a fight. Commit. |

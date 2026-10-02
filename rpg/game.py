@@ -1,5 +1,5 @@
 
-#from __future__ import annotations
+from __future__ import annotations
 
 from rpg.characters import Character, Hero, Enemy
 from rpg.items import Item
@@ -18,6 +18,10 @@ class Game:
         self._enemies_defeated = 0
 
     def run(self) -> None:
+        """Main loop: enter the hero's current location, fight anything
+        living there, then choose where to move next. Repeats until the hero
+        dies, the quest completes, or exploration stops (player choice in
+        interactive mode, or no unexplored paths left in demo mode)."""
         self._say(f"Quest: {self.quest.name} - {self.quest.description}")
         while self.hero.is_alive():
             location = self.hero.location
@@ -33,6 +37,8 @@ class Game:
         print(text)
     
     def _ask(self, prompt: str) -> str:
+        """Read one line of input. Exits the program cleanly on EOF or Ctrl-C 
+        instead of letting a raw traceback through."""
         try:
             return input(prompt).strip()
         except (EOFError, KeyboardInterrupt):
@@ -40,6 +46,9 @@ class Game:
             raise SystemExit(0)
     
     def _enter_location(self, location: Location) -> None:
+        """Describe location and resolve every living enemy there one at a
+        time (fight, announce, hand over reward, re-check the quest). Returns
+        early if the hero doesn't survive."""
         self._visited.add(location)
         self._path.append(location)
         self._say(f"\n== {location.name} ==")
@@ -56,9 +65,11 @@ class Game:
             self._check_quest()
     
     def _fight(self, enemy: Enemy) -> None:
-        self._say(f"\nA fight begins: {self.hero} vs {enemy}")
+        """Run combat until one side is dead, or MAX_ROUNDS is reached - a
+        guard against an unwinnable stalemate (e.g. 0 damage either side)."""
         MAX_ROUNDS = 100  # safety net against a stalemate (e.g. 0 damage on both sides)
         rounds = 0
+        self._say(f"\nA fight begins: {self.hero} vs {enemy}")
         while self.hero.is_alive() and enemy.is_alive() and rounds < MAX_ROUNDS:
             rounds += 1
             for combatant in self._turn_order(enemy):
@@ -71,11 +82,13 @@ class Game:
             self._say(f"The battle against {enemy.name} drags on inconclusively. Retreating!")
     
     def _turn_order(self, enemy: Enemy) -> list[Character]:
-            # TODO: initiative/speed, ambush, randomness. 
-            # TODO: Also decide how to avoid the hero dying to a first strike before ever acting.
-            return [self.hero, enemy]
+        # TODO: initiative/speed, ambush, randomness. 
+        # TODO: Also decide how to avoid the hero dying to a first strike before ever acting.
+        return [self.hero, enemy]
         
     def _take_turn(self, combatant: Character, opponent: Character) -> None:
+        """Resolve one combatant's turn. The hero may use an item instead of
+        attacking; every other combatant always attacks."""
         if isinstance(combatant, Hero):
             item = self._choose_hero_action()
             if item is not None:
@@ -105,7 +118,7 @@ class Game:
             self._say("Please enter one of the numbers listed above.")
     
     def _demo_action(self) -> Item | None:
-        # TODO: the demo hero only heals; equipping weapons waits for an `equipped` flag
+        # TODO: the demo hero only heals, never proactively equips a stronger weapon it finds
         if self.hero.current_health < self.hero.max_health // 2:
             for item in self.hero.inventory:
                 if item.healing_value() > 0:
@@ -171,6 +184,12 @@ class Game:
             self.hero.use_item(item)
 
     def _demo_move(self, location: Location) -> bool:
+        """Choose the demo hero's next move: prefer an unvisited exit from
+        location. If every exit leads somewhere already visited (a dead end),
+        backtrack to the nearest earlier location on the path that still has
+        an unvisited exit, and let the next loop iteration try again from
+        there. Returns False only once nothing in the whole map is left to
+        explore."""
         for destination in location.exits.values():
             if destination not in self._visited:
                 self.hero.move_to(destination)

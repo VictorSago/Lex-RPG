@@ -25,7 +25,7 @@ class Item:
 
 
 class Weapon(Item):
-    def __init__(self, name: str, damage_bonus: int):
+    def __init__(self, name: str, damage_bonus: int) -> None:
         if damage_bonus < 0:
             raise ValueError("damage_bonus cannot be negative")
         super().__init__(name, consumable=False)
