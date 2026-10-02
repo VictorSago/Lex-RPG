@@ -110,12 +110,16 @@ class Game:
         self._say("  0) Attack")
         for number, item in enumerate(inventory, start=1):
             self._say(f"  {number}) Use {item.name}")
+        choice = self._prompt_numeric_choice(len(inventory))
+        return None if choice == 0 else inventory[choice - 1]
+    
+    def _prompt_numeric_choice(self, max_choice: int) -> int:
+        """Ask for a number from 0 to max_choice, retrying on invalid input."""
         while True:
             answer = self._ask("> ")
-            if answer.isdigit() and int(answer) <= len(inventory):
-                choice = int(answer)
-                return None if choice == 0 else inventory[choice - 1]
-            self._say("Please enter one of the numbers listed above.")
+            if answer.isdigit() and int(answer) <= max_choice:
+                return int(answer)
+            self._say("Please enter one of the options listed above.")
     
     def _demo_action(self) -> Item | None:
         # TODO: the demo hero only heals, never proactively equips a stronger weapon it finds
@@ -174,14 +178,15 @@ class Game:
             tag = " (no effect right now)" if item.is_in_use(self.hero) else ""
             self._say(f"  {number}) {item.name}{tag}")
         self._say("  0) Back")
-        answer = self._ask("> ")
-        if answer.isdigit() and 1 <= int(answer) <= len(inventory):
-            item = inventory[int(answer) - 1]
-            if item.is_in_use(self.hero):
-                self._say(f"Using {item.name} wouldn't do anything right now.")
-                return
-            self._say(f"{self.hero.name} uses {item.name}.")
-            self.hero.use_item(item)
+        choice = self._prompt_numeric_choice(len(inventory))
+        if choice == 0:
+            return
+        item = inventory[choice - 1]
+        if item.is_in_use(self.hero):
+            self._say(f"Using {item.name} wouldn't do anything right now.")
+            return
+        self._say(f"{self.hero.name} uses {item.name}.")
+        self.hero.use_item(item)
 
     def _demo_move(self, location: Location) -> bool:
         """Choose the demo hero's next move: prefer an unvisited exit from

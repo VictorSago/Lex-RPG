@@ -208,7 +208,7 @@ Simplest version - each "round," hero deals damage equal to `attack_power` (opti
 | **done** | Branching map + demo backtracking | 5 locations, 2 enemies, demo backtracks via path-history scan. Commit. |
 | **done** | Exploration-time inventory management | use/equip items outside combat, not just during a fight. Commit. |
 | **done** | End-of-run stats | locations explored, enemies defeated, quest status. Commit. |
-| **now** | Edge cases / invalid actions | is_in_use (equipped weapon, full-health potion), negative-value validation, dead-combatant guard on attack(). Commit per fix. |
+| **partial** | Edge cases / invalid actions | is_in_use (equipped weapon, full-health potion), negative-value validation, dead-combatant guard on attack(). Commit per fix. |
 | **done** | README | fill in the `README.md`. Commit. |
-| 15 | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
+| **now** | Design review pass | reread: any duplicated code, could `__str__` help? Refactor. Commit. |
 | 16 | final cleanup | prune dead code, final push. |
