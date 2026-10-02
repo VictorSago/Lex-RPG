@@ -31,9 +31,13 @@ class Character:
         self.current_health = min(self.max_health, self.current_health + amount)
     
     def effective_attack_power(self) -> int:
+        """Attack power actually used in combat. Equal to attack_power by
+        default; Hero overrides this to include any equipment bonus."""
         return self.attack_power
     
     def attack(self, target: Character) -> None:
+        """Deal damage to target equal to effective_attack_power(). No-op if
+        either self or target is already dead."""
         if self.is_alive() and target.is_alive():
             target.take_damage(self.effective_attack_power())
     
@@ -57,6 +61,9 @@ class Hero(Character):
         self.equipped_weapon: Weapon | None = None
     
     def effective_attack_power(self) -> int:
+        """attack_power plus the equipped weapon's bonus, if any. Computed
+        fresh each call rather than stored, so it can't drift out of sync if
+        attack_power or the equipped weapon ever changes."""
         bonus = self.equipped_weapon.damage_bonus if self.equipped_weapon else 0
         return self.attack_power + bonus
     
@@ -64,6 +71,12 @@ class Hero(Character):
         self.inventory.append(item)
     
     def use_item(self, item: Item) -> None:
+        """Apply item's effect to this hero. Removes it from inventory
+        afterward only if item.consumable is True.
+
+        Raises:
+            ValueError: if item is not in this hero's inventory.
+        """
         if item not in self.inventory:
             raise ValueError(f"{self.name} does not have {item.name} in the inventory")
         item.use(self)
@@ -71,6 +84,8 @@ class Hero(Character):
             self.inventory.remove(item)
     
     def equip(self, item: Item) -> None:
+        """Equip item as the current weapon. Silently does nothing if item
+        isn't a Weapon - called polymorphically via Item.use()."""
         if not isinstance(item, Weapon):
             return
         self.equipped_weapon = item

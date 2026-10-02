@@ -17,7 +17,10 @@ class Location:
         self.enemies.append(enemy)
 
     def add_exit(self, direction: str, destination: Location, *, reciprocal: str | None = None) -> None:
-        # reciprocal is optional and named-only -- a `None` means that the exit is one-way
+        """Add a one-way exit from this location to destination. If reciprocal 
+        is given, also adds the return exit back to this location under that 
+        direction - pass it for a two-way passage, leave it None for a 
+        one-way passage."""
         self.exits[direction] = destination
         if reciprocal is not None:
             destination.exits[reciprocal] = self

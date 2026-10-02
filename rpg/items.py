@@ -32,9 +32,14 @@ class Weapon(Item):
         self.damage_bonus = damage_bonus
     
     def use(self, user: Character) -> None:
+        """Equip this weapon on user. Doesn't modify attack_power directly -
+        see Character.effective_attack_power()."""
         user.equip(self)
     
     def is_in_use(self, user: Character) -> bool:
+        """True if user already has this exact weapon equipped. Uses
+        getattr rather than isinstance(user, Hero) to avoid a real circular
+        import between items.py and characters.py."""
         return getattr(user, "equipped_weapon", None) is self
 
 
